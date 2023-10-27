@@ -11,10 +11,10 @@ library('dplyr') # data manipulation
 library(ggplot2)
 ###################################
 
-trainspater <- read.csv('C:/B‹SRA/Uni/Master/B F‰cher/Data Mining 2/HELM_2018/KAGGLE/KAGGLE_TITANIC/train.csv', stringsAsFactors = F)
-testspater  <- read.csv('C:/B‹SRA/Uni/Master/B F‰cher/Data Mining 2/HELM_2018/KAGGLE/KAGGLE_TITANIC/test.csv', stringsAsFactors = F)
+trainspater <- read.csv('C:/B√úSRA/Uni/Master/B F√§cher/Data Mining 2/HELM_2018/KAGGLE/KAGGLE_TITANIC/train.csv', stringsAsFactors = F)
+testspater  <- read.csv('C:/B√úSRA/Uni/Master/B F√§cher/Data Mining 2/HELM_2018/KAGGLE/KAGGLE_TITANIC/test.csv', stringsAsFactors = F)
 
-# binde training & test data f¸r sp‰ter eigene Datapartition
+# binde training & test data f√ºr sp√§ter eigene Datapartition
 full  <- bind_rows(trainspater, testspater) 
 
 ```
@@ -38,7 +38,7 @@ summary(full)
 
 barchart <- ggplot(full, aes(as.factor(Pclass), fill=as.factor(Survived)))+geom_bar()
 
-barchart+xlab("Klasse der Passagiere")+ylab("Anzahl der Passagiere")+ggtitle("‹berleben nach Passagierklasse")+scale_fill_discrete(name = "", labels = c("Verstorbene", "‹berlebende"))
+barchart+xlab("Klasse der Passagiere")+ylab("Anzahl der Passagiere")+ggtitle("√úberleben nach Passagierklasse")+scale_fill_discrete(name = "", labels = c("Verstorbene", "√úberlebende"))
 
 
 ```
@@ -52,7 +52,7 @@ barchart+xlab("Klasse der Passagiere")+ylab("Anzahl der Passagiere")+ggtitle("‹b
 
 
 # Load the raw training data and replace missing values with NA
-training.data.raw <- read.csv('C:/B‹SRA/Uni/Master/B F‰cher/Data Mining 2/HELM_2018/KAGGLE/KAGGLE_TITANIC/train.csv',header=T,na.strings=c(""))
+training.data.raw <- read.csv('C:/B√úSRA/Uni/Master/B F√§cher/Data Mining 2/HELM_2018/KAGGLE/KAGGLE_TITANIC/train.csv',header=T,na.strings=c(""))
 
 # Output the number of missing values for each column
 sapply(training.data.raw,function(x) sum(is.na(x)))
@@ -75,7 +75,7 @@ sapply(training.data.raw,function(x) sum(is.na(x)))
 library(Amelia)
 missmap(training.data.raw, main = "Missing values vs observed")
 
-write.table(training.data.raw, file = "C:/B‹SRA/Uni/Master/B F‰cher/Data Mining 2/HELM_2018/KAGGLE/Titanic_TrainingRohdaten.csv", dec = ",", sep = ";", row.names = FALSE)
+write.table(training.data.raw, file = "C:/B√úSRA/Uni/Master/B F√§cher/Data Mining 2/HELM_2018/KAGGLE/Titanic_TrainingRohdaten.csv", dec = ",", sep = ";", row.names = FALSE)
 
 
 ```
@@ -95,7 +95,7 @@ write.table(training.data.raw, file = "C:/B‹SRA/Uni/Master/B F‰cher/Data Mining 
 
 # Subsetting the data
 data <- subset(training.data.raw,select=c(2,3,5,6,7,8,10,12))
-write.table(data, file = "C:/B‹SRA/Uni/Master/B F‰cher/Data Mining 2/HELM_2018/KAGGLE/Titanic_Subset1daten.csv", dec = ",", sep = ";", row.names = FALSE)
+write.table(data, file = "C:/B√úSRA/Uni/Master/B F√§cher/Data Mining 2/HELM_2018/KAGGLE/Titanic_Subset1daten.csv", dec = ",", sep = ";", row.names = FALSE)
 
 ```
 
@@ -135,10 +135,10 @@ rownames(data) <- NULL
 
 ```{r}
 library(foreign)
-write.foreign(data, "C:/B‹SRA/Uni/Master/B F‰cher/Data Mining 2/HELM_2018/KAGGLE/Titanic_data.txt", "C:/B‹SRA/Uni/Master/B F‰cher/Data Mining 2/HELM_2018/KAGGLE/Titanic_data.sas", package="SAS") 
+write.foreign(data, "C:/B√úSRA/Uni/Master/B F√§cher/Data Mining 2/HELM_2018/KAGGLE/Titanic_data.txt", "C:/B√úSRA/Uni/Master/B F√§cher/Data Mining 2/HELM_2018/KAGGLE/Titanic_data.sas", package="SAS") 
 
 
-write.table(data, file = "C:/B‹SRA/Uni/Master/B F‰cher/Data Mining 2/HELM_2018/KAGGLE/Titanic_Subset2.csv", dec = ",", sep = ";", row.names = FALSE)
+write.table(data, file = "C:/B√úSRA/Uni/Master/B F√§cher/Data Mining 2/HELM_2018/KAGGLE/Titanic_Subset2.csv", dec = ",", sep = ";", row.names = FALSE)
 
 
 ```
@@ -164,9 +164,9 @@ test <- data[801:889,]
 
 # write out text datafile and a SAS program to read it
 library(foreign)
-write.foreign(train, "C:/B‹SRA/Uni/Master/B F‰cher/Data Mining 2/HELM_2018/KAGGLE/Titanic_train_0.txt", "C:/B‹SRA/Uni/Master/B F‰cher/Data Mining 2/HELM_2018/KAGGLE/Titanic_train_0.sas", package="SAS") 
-write.foreign(test,  "C:/B‹SRA/Uni/Master/B F‰cher/Data Mining 2/HELM_2018/KAGGLE/Titanic_test_0.txt",  "C:/B‹SRA/Uni/Master/B F‰cher/Data Mining 2/HELM_2018/KAGGLE/Titanic_test_0.sas",  package="SAS") 
-# --> brauche das f¸r SAS Eminer sp‰ter!!!
+write.foreign(train, "C:/B√úSRA/Uni/Master/B F√§cher/Data Mining 2/HELM_2018/KAGGLE/Titanic_train_0.txt", "C:/B√úSRA/Uni/Master/B F√§cher/Data Mining 2/HELM_2018/KAGGLE/Titanic_train_0.sas", package="SAS") 
+write.foreign(test,  "C:/B√úSRA/Uni/Master/B F√§cher/Data Mining 2/HELM_2018/KAGGLE/Titanic_test_0.txt",  "C:/B√úSRA/Uni/Master/B F√§cher/Data Mining 2/HELM_2018/KAGGLE/Titanic_test_0.sas",  package="SAS") 
+# --> brauche das f√ºr SAS Eminer sp√§ter!!!
 
 #write.foreign(test, datafile="testingg.csv", codefile="testingg.sas7bdat", package="SAS")
 #funktioniert auch nicht
@@ -174,7 +174,7 @@ write.foreign(test,  "C:/B‹SRA/Uni/Master/B F‰cher/Data Mining 2/HELM_2018/KAGGL
 
 
 #write.foreign(test, datafile="testingg.csv", codefile="testingg.sas", package="SAS")
-#import("C:/B‹SRA/Uni/Master/B F‰cher/Data Mining 2/HELM_2018/KAGGLE/TITANIC/testingg.csv")
+#import("C:/B√úSRA/Uni/Master/B F√§cher/Data Mining 2/HELM_2018/KAGGLE/TITANIC/testingg.csv")
 #convert("testingg.csv", "tttt.sas7bdat")
 #funktioniert auch nicht!!!!
 
@@ -190,19 +190,19 @@ write.foreign(test,  "C:/B‹SRA/Uni/Master/B F‰cher/Data Mining 2/HELM_2018/KAGGL
 #install.packages("rio")
 library("rio")
 
-export(train, "C:/B‹SRA/Uni/Master/B F‰cher/Data Mining 2/HELM_2018/KAGGLE/r_mydata.csv")
-export(train, "C:/B‹SRA/Uni/Master/B F‰cher/Data Mining 2/HELM_2018/KAGGLE/r_mydata.sas7bdat")
+export(train, "C:/B√úSRA/Uni/Master/B F√§cher/Data Mining 2/HELM_2018/KAGGLE/r_mydata.csv")
+export(train, "C:/B√úSRA/Uni/Master/B F√§cher/Data Mining 2/HELM_2018/KAGGLE/r_mydata.sas7bdat")
 
 # ACHTUNG ::   ERRROR
 # sas7bdat von  rio  wird von  SAS  nicht erkannt  !
 
 
 
-write.table(train, file = "C:/B‹SRA/Uni/Master/B F‰cher/Data Mining 2/HELM_2018/KAGGLE/Titanic_train_w.csv", dec = ",", sep = ";", row.names = FALSE)
+write.table(train, file = "C:/B√úSRA/Uni/Master/B F√§cher/Data Mining 2/HELM_2018/KAGGLE/Titanic_train_w.csv", dec = ",", sep = ";", row.names = FALSE)
 
 
 
-write.table(test, file = "C:/B‹SRA/Uni/Master/B F‰cher/Data Mining 2/HELM_2018/KAGGLE/Titanic_test_w.csv", dec = ",", sep = ";", row.names = FALSE)
+write.table(test, file = "C:/B√úSRA/Uni/Master/B F√§cher/Data Mining 2/HELM_2018/KAGGLE/Titanic_test_w.csv", dec = ",", sep = ";", row.names = FALSE)
 
 
 
@@ -419,7 +419,7 @@ auc
 ```{r}
 
 
-# ROC and AUC f¸r Modell 2
+# ROC and AUC f√ºr Modell 2
 
 
 p2 <- predict(model2, newdata=subset(test,select=c(2,3,4,5,6,7,8)), type="response")
@@ -465,7 +465,7 @@ exp(cbind("Odds ratio" = coef(model), confint.default(model, level = 0.95)))
 
 
 
-# Unterschiedliche train/test datens‰tze
+# Unterschiedliche train/test datens√§tze
 
 
 
@@ -487,7 +487,7 @@ testa<-data[-sida,]
 
 ```{r}
 
-# Model fitting --- logistische Regression f¸r A
+# Model fitting --- logistische Regression f√ºr A
 modela <- glm(Survived ~.,family=binomial(link='logit'),data=traina)
 summary(modela)
 
@@ -518,7 +518,7 @@ confusionMatrix(table(data=fitted.resultsa, reference=testa$Survived))
 ```{r}
 
 
-# ROC and AUC f¸r A
+# ROC and AUC f√ºr A
 
 
 pa <- predict(modela, newdata=subset(testa,select=c(2,3,4,5,6,7,8)), type="response")
@@ -552,7 +552,7 @@ testb<-data[-sidb,]
 
 ```{r}
 
-# Model fitting --- logistische Regression f¸r B
+# Model fitting --- logistische Regression f√ºr B
 modelb <- glm(Survived ~.,family=binomial(link='logit'),data=trainb)
 summary(modelb)
 
@@ -583,7 +583,7 @@ confusionMatrix(table(data=fitted.resultsb, reference=testb$Survived))
 ```{r}
 
 
-# ROC and AUC f¸r B
+# ROC and AUC f√ºr B
 
 
 pb <- predict(modelb, newdata=subset(testb,select=c(2,3,4,5,6,7,8)), type="response")
@@ -621,7 +621,7 @@ testc<-data[-sidc,]
 
 ```{r}
 
-# Model fitting --- logistische Regression f¸r C
+# Model fitting --- logistische Regression f√ºr C
 modelc <- glm(Survived ~.,family=binomial(link='logit'),data=trainc)
 summary(modelc)
 
@@ -652,7 +652,7 @@ confusionMatrix(table(data=fitted.resultsc, reference=testc$Survived))
 ```{r}
 
 
-# ROC and AUC f¸r C
+# ROC and AUC f√ºr C
 
 
 pc <- predict(modelc, newdata=subset(testc,select=c(2,3,4,5,6,7,8)), type="response")
