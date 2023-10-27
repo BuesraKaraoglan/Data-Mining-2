@@ -1,0 +1,686 @@
+---
+title: "Aufgabe2_DM2"
+author: "busra"
+date: "6 Juli 2018"
+output: pdf_document
+---
+
+
+```{r}
+library('dplyr') # data manipulation
+library(ggplot2)
+###################################
+
+trainspater <- read.csv('C:/BÜSRA/Uni/Master/B Fächer/Data Mining 2/HELM_2018/KAGGLE/KAGGLE_TITANIC/train.csv', stringsAsFactors = F)
+testspater  <- read.csv('C:/BÜSRA/Uni/Master/B Fächer/Data Mining 2/HELM_2018/KAGGLE/KAGGLE_TITANIC/test.csv', stringsAsFactors = F)
+
+# binde training & test data für später eigene Datapartition
+full  <- bind_rows(trainspater, testspater) 
+
+```
+
+```{r}
+
+# check data
+str(full)
+
+```
+
+```{r}
+
+summary(full)
+#head(full)
+
+```
+
+
+```{r}
+
+barchart <- ggplot(full, aes(as.factor(Pclass), fill=as.factor(Survived)))+geom_bar()
+
+barchart+xlab("Klasse der Passagiere")+ylab("Anzahl der Passagiere")+ggtitle("Überleben nach Passagierklasse")+scale_fill_discrete(name = "", labels = c("Verstorbene", "Überlebende"))
+
+
+```
+
+
+
+
+#### Ab hier pdf version
+
+```{r}
+
+
+# Load the raw training data and replace missing values with NA
+training.data.raw <- read.csv('C:/BÜSRA/Uni/Master/B Fächer/Data Mining 2/HELM_2018/KAGGLE/KAGGLE_TITANIC/train.csv',header=T,na.strings=c(""))
+
+# Output the number of missing values for each column
+sapply(training.data.raw,function(x) sum(is.na(x)))
+
+
+
+
+```
+
+
+
+
+
+
+```{r}
+
+
+# A visual way to check for missing data
+#install.packages("Amelia")
+library(Amelia)
+missmap(training.data.raw, main = "Missing values vs observed")
+
+write.table(training.data.raw, file = "C:/BÜSRA/Uni/Master/B Fächer/Data Mining 2/HELM_2018/KAGGLE/Titanic_TrainingRohdaten.csv", dec = ",", sep = ";", row.names = FALSE)
+
+
+```
+
+
+
+
+
+
+
+
+
+
+```{r}
+
+
+
+# Subsetting the data
+data <- subset(training.data.raw,select=c(2,3,5,6,7,8,10,12))
+write.table(data, file = "C:/BÜSRA/Uni/Master/B Fächer/Data Mining 2/HELM_2018/KAGGLE/Titanic_Subset1daten.csv", dec = ",", sep = ";", row.names = FALSE)
+
+```
+
+
+
+
+```{r}
+
+# Substitute the missing values with the average value
+data$Age[is.na(data$Age)] <- mean(data$Age,na.rm=T)
+
+
+
+```
+
+
+
+
+```{r}
+
+
+# Remove rows (Embarked) with NAs
+data <- data[!is.na(data$Embarked),]
+
+```
+
+
+
+```{r}
+
+rownames(data) <- NULL
+
+```
+
+
+
+
+```{r}
+library(foreign)
+write.foreign(data, "C:/BÜSRA/Uni/Master/B Fächer/Data Mining 2/HELM_2018/KAGGLE/Titanic_data.txt", "C:/BÜSRA/Uni/Master/B Fächer/Data Mining 2/HELM_2018/KAGGLE/Titanic_data.sas", package="SAS") 
+
+
+write.table(data, file = "C:/BÜSRA/Uni/Master/B Fächer/Data Mining 2/HELM_2018/KAGGLE/Titanic_Subset2.csv", dec = ",", sep = ";", row.names = FALSE)
+
+
+```
+
+
+
+
+```{r}
+
+#die traininingsdaten an sich werden in: train & valid !!!!!!
+#  Splitting into separate Train and  Test (=Validation Data)   |  IMPORTANT !
+train <- data[1:800,]
+test <- data[801:889,]
+
+
+```
+
+
+
+
+
+```{r}
+
+# write out text datafile and a SAS program to read it
+library(foreign)
+write.foreign(train, "C:/BÜSRA/Uni/Master/B Fächer/Data Mining 2/HELM_2018/KAGGLE/Titanic_train_0.txt", "C:/BÜSRA/Uni/Master/B Fächer/Data Mining 2/HELM_2018/KAGGLE/Titanic_train_0.sas", package="SAS") 
+write.foreign(test,  "C:/BÜSRA/Uni/Master/B Fächer/Data Mining 2/HELM_2018/KAGGLE/Titanic_test_0.txt",  "C:/BÜSRA/Uni/Master/B Fächer/Data Mining 2/HELM_2018/KAGGLE/Titanic_test_0.sas",  package="SAS") 
+# --> brauche das für SAS Eminer später!!!
+
+#write.foreign(test, datafile="testingg.csv", codefile="testingg.sas7bdat", package="SAS")
+#funktioniert auch nicht
+
+
+
+#write.foreign(test, datafile="testingg.csv", codefile="testingg.sas", package="SAS")
+#import("C:/BÜSRA/Uni/Master/B Fächer/Data Mining 2/HELM_2018/KAGGLE/TITANIC/testingg.csv")
+#convert("testingg.csv", "tttt.sas7bdat")
+#funktioniert auch nicht!!!!
+
+
+
+```
+
+
+
+```{r}
+
+
+#install.packages("rio")
+library("rio")
+
+export(train, "C:/BÜSRA/Uni/Master/B Fächer/Data Mining 2/HELM_2018/KAGGLE/r_mydata.csv")
+export(train, "C:/BÜSRA/Uni/Master/B Fächer/Data Mining 2/HELM_2018/KAGGLE/r_mydata.sas7bdat")
+
+# ACHTUNG ::   ERRROR
+# sas7bdat von  rio  wird von  SAS  nicht erkannt  !
+
+
+
+write.table(train, file = "C:/BÜSRA/Uni/Master/B Fächer/Data Mining 2/HELM_2018/KAGGLE/Titanic_train_w.csv", dec = ",", sep = ";", row.names = FALSE)
+
+
+
+write.table(test, file = "C:/BÜSRA/Uni/Master/B Fächer/Data Mining 2/HELM_2018/KAGGLE/Titanic_test_w.csv", dec = ",", sep = ";", row.names = FALSE)
+
+
+
+```
+
+
+
+
+
+
+
+
+
+```{r}
+
+table(train$Survived)
+### kein richtiger Imbalance, da Survided: 38,375% und Tote: 61,562% -- 307 zu 493 bei 800 traningsdaten
+
+```
+
+```{r}
+
+table(test$Survived)
+
+```
+
+
+
+```{r}
+### logistische Regression mit Cross-Validation 
+library(caret)
+
+# definiere training control
+train_control<- trainControl(method="cv", number=800)
+
+# trainere das Modell 
+modeloo<- train(as.factor(Survived) ~., data=train, trControl=train_control, method="glm", family=binomial(link='logit'))
+
+summary(modeloo)
+
+```
+
+
+
+
+
+
+
+
+```{r}
+
+# Model fitting --- logistische Regression
+model <- glm(Survived ~.,family=binomial(link='logit'),data=train)
+summary(model)
+
+```
+
+
+
+
+
+
+
+
+
+```{r}
+
+# Analysis of deviance
+anova(model,test="Chisq")
+
+```
+
+
+```{r}
+
+#bei model2 nur die signifkanten Einflussfaktoren mit in Log. Reg. genommem!
+model2 <- glm(Survived ~ Pclass + Sex + Age, family=binomial(link='logit'),data=train)
+summary(model2)
+
+```
+
+
+
+
+
+
+
+
+
+```{r}
+# McFadden R^2
+#install.packages("pscl")
+library(pscl)
+pR2(model)
+
+```
+
+
+
+```{r}
+
+pR2(model2)
+
+```
+
+
+
+
+
+
+```{r}
+
+#-------------------------------------------------------------------------------
+# MEASURING THE PREDICTIVE ABILITY OF THE MODEL
+
+# If prob > 0.5 then 1, else 0. Threshold can be set for better results
+fitted.results <- predict(model,newdata=subset(test,select=c(2,3,4,5,6,7,8)),type='response')
+fitted.results <- ifelse(fitted.results > 0.5,1,0)
+
+
+```
+
+
+
+```{r}
+
+fitted.results2 <- predict(model2,newdata=subset(test,select=c(2,3,4,5)),type='response')
+fitted.results2 <- ifelse(fitted.results2 > 0.5,1,0)
+
+```
+
+
+
+```{r}
+
+#gibt diesen FEHLERMELDUNG: `data` and `reference` should be factors with the same levels.
+# daher table() noch drumherum!
+# Confusion matrix
+library(caret)
+confusionMatrix(table(data=fitted.results, reference=test$Survived))
+
+```
+
+
+
+
+```{r}
+
+
+confusionMatrix(table(data=fitted.results2, reference=test$Survived))
+## hier sogar weniger accuracy ---nicht gut --also lieber normale model verwenden
+
+
+
+```
+
+
+
+
+```{r}
+
+
+# ROC and AUC
+library(ROCR)
+
+p <- predict(model, newdata=subset(test,select=c(2,3,4,5,6,7,8)), type="response")
+pr <- prediction(p, test$Survived)
+
+
+```
+
+
+
+
+```{r}
+p
+```
+
+
+```{r}
+fitted.results
+```
+
+```{r}
+test$Survived
+```
+
+
+
+
+```{r}
+
+# TPR = sensitivity, FPR=specificity
+
+prf <- performance(pr, measure = "tpr", x.measure = "fpr")
+plot(prf)
+
+```
+
+
+
+
+
+
+```{r}
+
+auc <- performance(pr, measure = "auc")
+auc <- auc@y.values[[1]]
+auc
+```
+
+
+
+```{r}
+
+
+# ROC and AUC für Modell 2
+
+
+p2 <- predict(model2, newdata=subset(test,select=c(2,3,4,5,6,7,8)), type="response")
+pr2 <- prediction(p2, test$Survived)
+
+# TPR = sensitivity, FPR=specificity
+
+prf2 <- performance(pr2, measure = "tpr", x.measure = "fpr")
+plot(prf2)
+
+
+```
+```{r}
+auc2 <- performance(pr2, measure = "auc")
+auc2 <- auc2@y.values[[1]]
+auc2
+
+```
+
+
+
+```{r}
+# nur odds ratios
+exp(coef(model))
+
+```
+
+
+```{r}
+# odds ratios und 95% Konfidenzeintervall
+
+exp(cbind("Odds ratio" = coef(model), confint.default(model, level = 0.95)))
+
+```
+
+
+
+
+
+
+
+
+
+
+
+# Unterschiedliche train/test datensätze
+
+
+
+
+
+
+
+```{r}
+#split data into train(60%) and test(40%) --- A
+set.seed(12345)
+traina<-sample_frac(data, 0.6)
+sida<-as.numeric(rownames(traina)) # because rownames() returns character
+testa<-data[-sida,]
+
+
+```
+
+
+
+```{r}
+
+# Model fitting --- logistische Regression für A
+modela <- glm(Survived ~.,family=binomial(link='logit'),data=traina)
+summary(modela)
+
+```
+
+
+```{r}
+
+pR2(modela)
+
+```
+
+```{r}
+
+fitted.resultsa <- predict(modela,newdata=subset(testa,select=c(2,3,4,5,6,7,8)),type='response')
+fitted.resultsa <- ifelse(fitted.resultsa > 0.5,1,0)
+
+```
+
+
+```{r}
+
+confusionMatrix(table(data=fitted.resultsa, reference=testa$Survived))
+
+```
+
+
+```{r}
+
+
+# ROC and AUC für A
+
+
+pa <- predict(modela, newdata=subset(testa,select=c(2,3,4,5,6,7,8)), type="response")
+pra <- prediction(pa, testa$Survived)
+prfa <- performance(pra, measure = "tpr", x.measure = "fpr")
+plot(prfa)
+
+```
+
+
+```{r}
+
+
+auca <- performance(pra, measure = "auc")
+auca <- auca@y.values[[1]]
+auca
+
+```
+
+
+```{r}
+#split data into train(70%) and test(30%) --- B
+set.seed(12345)
+trainb<-sample_frac(data, 0.7)
+sidb<-as.numeric(rownames(trainb)) # because rownames() returns character
+testb<-data[-sidb,]
+
+
+```
+
+
+```{r}
+
+# Model fitting --- logistische Regression für B
+modelb <- glm(Survived ~.,family=binomial(link='logit'),data=trainb)
+summary(modelb)
+
+```
+
+
+```{r}
+
+pR2(modelb)
+
+```
+
+```{r}
+
+fitted.resultsb <- predict(modelb,newdata=subset(testb,select=c(2,3,4,5,6,7,8)),type='response')
+fitted.resultsb <- ifelse(fitted.resultsb > 0.5,1,0)
+
+```
+
+
+```{r}
+
+confusionMatrix(table(data=fitted.resultsb, reference=testb$Survived))
+
+```
+
+
+```{r}
+
+
+# ROC and AUC für B
+
+
+pb <- predict(modelb, newdata=subset(testb,select=c(2,3,4,5,6,7,8)), type="response")
+prb <- prediction(pb, testb$Survived)
+prfb <- performance(prb, measure = "tpr", x.measure = "fpr")
+plot(prfb)
+
+```
+
+
+
+```{r}
+
+aucb <- performance(prb, measure = "auc")
+aucb <- aucb@y.values[[1]]
+aucb
+
+```
+
+
+
+```{r}
+#split data into train(80%) and test(20%) --- C
+set.seed(12345)
+trainc<-sample_frac(data, 0.8)
+sidc<-as.numeric(rownames(trainc)) # because rownames() returns character
+testc<-data[-sidc,]
+
+
+```
+
+
+
+
+
+```{r}
+
+# Model fitting --- logistische Regression für C
+modelc <- glm(Survived ~.,family=binomial(link='logit'),data=trainc)
+summary(modelc)
+
+```
+
+
+```{r}
+
+pR2(modelc)
+
+```
+
+```{r}
+
+fitted.resultsc <- predict(modelc,newdata=subset(testc,select=c(2,3,4,5,6,7,8)),type='response')
+fitted.resultsc <- ifelse(fitted.resultsc > 0.5,1,0)
+
+```
+
+
+```{r}
+
+confusionMatrix(table(data=fitted.resultsc, reference=testc$Survived))
+
+```
+
+
+```{r}
+
+
+# ROC and AUC für C
+
+
+pc <- predict(modelc, newdata=subset(testc,select=c(2,3,4,5,6,7,8)), type="response")
+prc <- prediction(pc, testc$Survived)
+prfc <- performance(prc, measure = "tpr", x.measure = "fpr")
+plot(prfc)
+
+```
+
+
+
+
+```{r}
+
+aucc <- performance(prc, measure = "auc")
+aucc <- aucc@y.values[[1]]
+aucc
+
+```
+
+
+
+
+
+
+
+
+
+
+
+

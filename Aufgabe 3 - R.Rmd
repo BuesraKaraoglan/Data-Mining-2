@@ -1,0 +1,394 @@
+---
+title: "Aufgabe 3"
+author: "busra"
+date: "7 Juli 2018"
+output: pdf_document
+---
+
+
+```{r}
+Pfad <- "C:/BÜSRA/Uni/Master/B Fächer/Data Mining 2/HELM_2018/TRANSFER/SMOTE_1"
+
+
+
+# load data sets
+hyper <-read.csv('http://archive.ics.uci.edu/ml/machine-learning-databases/thyroid-disease/hypothyroid.data', header=F)
+names <- read.csv('http://archive.ics.uci.edu/ml/machine-learning-databases/thyroid-disease/hypothyroid.names', header=F, sep='\t')[[1]]
+names <- gsub(pattern =":|[.]",x = names, replacement="")
+colnames(hyper) <- names
+
+# fix variables and column headers
+colnames(hyper) <-c("target", "age", "sex", "on_thyroxine", "query_on_thyroxine",
+                    "on_antithyroid_medication", "thyroid_surgery", "query_hypothyroid",
+                    "query_hyperthyroid", "pregnant", "sick", "tumor", "lithium",
+                    "goitre", "TSH_measured", "TSH", "T3_measured", "T3", "TT4_measured",
+                    "TT4", "T4U_measured", "T4U", "FTI_measured", "FTI", "TBG_measured",
+                    "TBG")
+```
+
+```{r}
+## Start Manuel
+write.table(x = hyper, file = paste(Pfad,"hyper_hypothyroid.csv", sep = ""), dec = ",", sep = ";", row.names = FALSE)
+## End Manuel
+```
+
+```{r}
+hyper$target <- ifelse(hyper$target=='negative',0,1)
+head(hyper,2)
+
+## Start Manuel
+write.table(x = hyper, file = paste(Pfad,"hyper_01.csv", sep = ""), dec = ",", sep = ";", row.names = FALSE)
+## End Manuel
+```
+
+```{r}
+
+# check balance of outcome variable
+print(table(hyper$target))
+print(prop.table(table(hyper$target)))
+```
+
+```{r}
+# binarize all character fields
+ind <- sapply(hyper, is.factor)
+hyper[ind] <- lapply(hyper[ind], as.character)
+
+hyper[ hyper == "?" ] = NA
+hyper[ hyper == "f" ] = 0
+hyper[ hyper == "t" ] = 1
+hyper[ hyper == "n" ] = 0
+hyper[ hyper == "y" ] = 1
+hyper[ hyper == "M" ] = 0
+hyper[ hyper == "F" ] = 1
+
+hyper[ind] <- lapply(hyper[ind], as.numeric)
+
+## Start Manuel
+write.table(x = hyper, file = paste(Pfad,"hyper_01_bin.csv", sep = ""), dec = ",", sep = ";", row.names = FALSE)
+## End Manuel
+```
+
+```{r}
+
+replaceNAsWithMean <- function(x) {replace(x, is.na(x), mean(x[!is.na(x)]))}
+
+## Start Manuel
+
+# hyper <- replaceNAsWithMean(hyper)
+
+#repalceNAsWithMode <- function(x) {ux <- unique(x)
+#replace(x, is.na(x), ux[!is.na(which.max(tabulate(match(x, ux))))])}
+
+# hyper <- replaceNAsWithMean(hyper)
+
+replaceNAsWithMode <- function(x) {ux <- unique(x)
+replace(x, is.na(x), ux[which.max(tabulate(match(x, ux)))])}
+
+
+#summary(hyper) # achte auf NA's
+
+hyper$age <- replaceNAsWithMean(hyper$age)
+
+hyper$sex <- replaceNAsWithMode(hyper$sex)
+#hyper$sex <- replaceNAsWithMean(hyper$sex)
+
+hyper$TSH <- replaceNAsWithMean(hyper$TSH)
+
+hyper$T3 <- replaceNAsWithMean(hyper$T3)
+
+hyper$TT4 <- replaceNAsWithMean(hyper$TT4)
+
+hyper$T4U <- replaceNAsWithMean(hyper$T4U)
+
+hyper$FTI <- replaceNAsWithMean(hyper$FTI)
+
+
+# hier müssten dann alle weiteren Variablen aufgeführt werden, bei denen missing values auftreten
+
+
+# Test and Check of Preprocessing
+mean(hyper$age)
+prop.table(table(hyper$sex))
+mean(hyper$TSH)
+
+summary(hyper) # achte auf NA's
+
+
+write.table(x = hyper, file = paste(Pfad,"hyper_01_bin_mean.csv", sep = ""), dec = ",", sep = ";", row.names = FALSE)
+## End Manuel
+
+hyper$TBG <- NULL
+
+
+library(foreign)
+write.foreign(hyper, "C:/BÜSRA/Uni/Master/B Fächer/Data Mining 2/HELM_2018/TRANSFER/hyper_01_bin_mean_0TBG.txt", "C:/BÜSRA/Uni/Master/B Fächer/Data Mining 2/HELM_2018/TRANSFER/hyper_01_bin_mean_0TBG.sas", package="SAS") 
+
+
+write.table(x = hyper, file = paste(Pfad,"hyper_01_bin_mean_0TBG.csv", sep = ""), dec = ",", sep = ";", row.names = FALSE)
+
+summary(hyper) # achte auf NA's    FINAL CHECK
+
+
+```
+
+# split data into train and test portions  (test == valid(ation)  in  SAS EMiner System)
+
+```{r}
+library(caret)
+set.seed(1234)
+splitIndex <- createDataPartition(hyper$target, p = .50,
+                                  list = FALSE,
+                                  times = 1)
+trainSplit <- hyper[ splitIndex,]
+testSplit  <- hyper[-splitIndex,]
+
+```
+
+```{r}
+table(trainSplit$target)
+table(testSplit$target)
+```
+
+```{r}
+prop.table(table(trainSplit$target))
+prop.table(table(testSplit$target))
+```
+
+```{r}
+write.table(x = trainSplit, file = paste(Pfad,"hyper_01_bin_mean_trainSplit.csv", sep = ""), dec = ",", sep = ";", row.names = FALSE)
+
+write.table(x = testSplit, file = paste(Pfad,"hyper_01_bin_mean_testSplit.csv", sep = ""), dec = ",", sep = ";", row.names = FALSE)
+
+```
+
+
+```{r}
+is.factor(testSplit$target)
+is.factor(trainSplit$target)
+
+levels(testSplit$target)
+levels(trainSplit$target)
+
+```
+
+```{r}
+
+#testSplit$target <- as.factor(testSplit$target)
+#trainSplit$target <- as.factor(trainSplit$target)
+```
+
+
+
+
+
+
+# model using treebag
+
+
+```{r}
+ctrl <- trainControl(method = "cv", number = 5)
+tbmodel <- train(target ~ ., data = trainSplit, method = "treebag",
+                 trControl = ctrl)
+
+summary(tbmodel)
+
+
+```
+
+```{r}
+
+predictors <- names(trainSplit)[names(trainSplit) != 'target']
+pred <- predict(tbmodel$finalModel, testSplit[,predictors])
+
+
+addmargins(table(pred)) # ist binär (0 / 1), wenn testSplit$target binär (factor) ist
+                        # ist metrisch, wenn testSplit$target nicht binär (factor) ist
+```
+
+```{r}
+pred # das heißt  0.001633311 wurde 1462 mal als wkeit berrechntet
+```
+
+
+
+```{r}
+# If prob > 0.5 then 1, else 0. Threshold can be set for better results
+pred <- ifelse(pred > 0.5,1,0)
+
+misClasificError <- mean(pred != testSplit$target)
+print(paste('Accuracy',1-misClasificError))
+```
+
+
+```{r}
+# Confusion matrix
+library(caret)
+###hier immer data` and `reference` should be factors with the same levels. Fehler falle keine  table()
+confusionMatrix(table(data=pred, reference=testSplit$target))
+```
+
+```{r}
+# ROC and AUC
+library(ROCR)
+
+ptree <- predict(tbmodel$finalModel, testSplit[,predictors])
+prtree <- prediction(ptree, testSplit$target)
+#summary(p)
+#p
+
+# neu2
+#pr
+summary(prtree)
+
+
+#summary(testSplit$target)
+#test$Survived
+#falsch---- muss testSplit heißen
+#testSplit$Survived
+#falsch - hier NULL -- war ja klar, denn es die abh Var ist hier TARGET!!
+#testSplit$target
+####Anscheinen die erstn 90 Target = 1 und ab 91 bis 1000 Target = 0
+#### DAHER unten gleich mit PAcket Data Mining with R -DMwR Smote funktion anwenden!!!
+
+# Bitte Inhalt von  Objekt  pr  anschauen :
+# pr
+# TPR = sensitivity, FPR=specificity
+prftree <- performance(prtree, measure = "tpr", x.measure = "fpr")
+plot(prftree)
+
+```
+
+```{r}
+auctree <- performance(prtree, measure = "auc")
+auctree <- auctree@y.values[[1]]
+auctree
+```
+
+
+
+
+
+
+
+```{r}
+library(DMwR)
+
+testSplit$target <- as.factor(testSplit$target)
+trainSplit$target <- as.factor(trainSplit$target)
+
+#trainSplit$target <- as.factor(trainSplit$target)
+trainSplit <- SMOTE(target ~ ., trainSplit, perc.over = 100, perc.under=200)
+# trainSplit$target <- as.numeric(trainSplit$target)
+
+```
+
+
+```{r}
+
+
+write.table(x = trainSplit, file = paste(Pfad,"hyper_01_bin_mean_trainSplit_SMOTE.csv", sep = ""), dec = ",", sep = ";", row.names = FALSE)
+
+```
+
+```{r}
+table(trainSplit$target)
+
+prop.table(table(trainSplit$target))
+##die WKEITEN die 1 und 0 aufgeteilt sind hier das idealfall--also 50/50
+
+```
+
+
+
+
+```{r}
+
+# evaluate the SMOTE performance
+tbmodel <- train(target ~ ., data = trainSplit, method = "treebag",
+                 trControl = ctrl)
+
+predictors <- names(trainSplit)[names(trainSplit) != 'target']
+pred <- predict(tbmodel$finalModel, testSplit[,predictors])
+
+addmargins(table(pred))
+```
+
+
+
+```{r}
+pred
+```
+
+
+```{r}
+# If prob > 0.5 then 1, else 0. Threshold can be set for better results
+#pred <- ifelse(pred = 1,1,0)
+
+misClasificError <- mean(pred != testSplit$target)
+print(paste('Accuracy',1-misClasificError))
+```
+
+
+```{r}
+# Confusion matrix
+library(caret)
+###hier immer data` and `reference` should be factors with the same levels. Fehler falle keine  table()
+confusionMatrix(table(data=pred, reference=testSplit$target))
+```
+
+
+
+
+```{r}
+library(pROC)
+# neu
+pred <- as.numeric(pred)
+
+auc <- roc(testSplit$target, pred)
+print(auc)
+
+plot(auc, ylim=c(0,1), print.thres=TRUE, main=paste('AUC:',round(auc$auc[[1]],2)))
+abline(h=1,col='blue',lwd=2)
+abline(h=0,col='red',lwd=2)
+```
+
+
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+
+
+```{r}
+
+```
+
+```{r}
+
+```
+
